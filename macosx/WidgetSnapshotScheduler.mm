@@ -84,13 +84,15 @@ static NSTimeInterval const kHeartbeatInterval = 60.0;
 
 #pragma mark - Private
 
-/// What the widget's content depends on beyond progress and speeds: which torrents, in which order, in which state.
+/// What the widget's content depends on beyond progress and speeds: which torrents, in which order, in which state,
+/// and which are transmitting (the Active filter).
 - (NSString*)signatureOfTorrents:(NSArray<Torrent*>*)torrents
 {
     NSMutableString* signature = [NSMutableString string];
     for (Torrent* torrent in torrents)
     {
-        [signature appendFormat:@"%d:%ld:%d,", torrent.id, (long)torrent.filterStatus, torrent.anyErrorOrWarning];
+        [signature appendFormat:@"%d:%ld:%d:%d,", torrent.id, (long)torrent.filterStatus, torrent.transmitting,
+                                torrent.anyErrorOrWarning];
     }
     return signature;
 }
