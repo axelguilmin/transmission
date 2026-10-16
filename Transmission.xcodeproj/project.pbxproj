@@ -489,6 +489,10 @@
 		F63480631E1D7274005B9E09 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F63480621E1D7274005B9E09 /* Images.xcassets */; };
 		5A448D9B32E34A8F86AA8658 /* TransmissionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC41FD1FCF2491492AE9A6F /* TransmissionWidget.swift */; };
 		0D4C372E9E9E494EAB418953 /* TransmissionWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 557FB7523EE64E03A25D4E25 /* TransmissionWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		860F8B32C9A6483990A4AC34 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB8283D4B0D447F818513F0 /* WidgetSnapshot.swift */; };
+		50D7FA6A593C430384275CD7 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB8283D4B0D447F818513F0 /* WidgetSnapshot.swift */; };
+		17D71162264A4A78B29444E8 /* WidgetSnapshotWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76575A09F9BA43BF9DCCAB43 /* WidgetSnapshotWriter.swift */; };
+		7EF218695E4345EBAE2F6AEB /* WidgetSnapshotScheduler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F0E8BD7387E841B0A53C0BE7 /* WidgetSnapshotScheduler.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1499,6 +1503,11 @@
 		FB2734E027454906AE4FC969 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4D3CE16AEC884B3C8B76BC68 /* TransmissionWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TransmissionWidget.entitlements; sourceTree = "<group>"; };
 		557FB7523EE64E03A25D4E25 /* TransmissionWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TransmissionWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9FB8283D4B0D447F818513F0 /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshot.swift; sourceTree = "<group>"; };
+		76575A09F9BA43BF9DCCAB43 /* WidgetSnapshotWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotWriter.swift; sourceTree = "<group>"; };
+		5C63D072F9E44F879788136E /* WidgetSnapshotWriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WidgetSnapshotWriter.h; sourceTree = "<group>"; };
+		F0E8BD7387E841B0A53C0BE7 /* WidgetSnapshotScheduler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WidgetSnapshotScheduler.mm; sourceTree = "<group>"; };
+		6819587075394BC9B70330C6 /* WidgetSnapshotScheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WidgetSnapshotScheduler.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1720,6 +1729,10 @@
 				C86BCD9828228A9600F45599 /* SparkleProxy.mm */,
 				4DF0C5AA0899190500DD8943 /* Controller.h */,
 				4DF0C5A90899190500DD8943 /* Controller.mm */,
+				6819587075394BC9B70330C6 /* WidgetSnapshotScheduler.h */,
+				F0E8BD7387E841B0A53C0BE7 /* WidgetSnapshotScheduler.mm */,
+				5C63D072F9E44F879788136E /* WidgetSnapshotWriter.h */,
+				76575A09F9BA43BF9DCCAB43 /* WidgetSnapshotWriter.swift */,
 				4DFBC2DD09C0970D00D5C571 /* Torrent.h */,
 				4DFBC2DE09C0970D00D5C571 /* Torrent.mm */,
 				A27F0F310E19AD9800B2DB97 /* TorrentGroup.h */,
@@ -2563,11 +2576,20 @@
 		BA18349480D04877A65BDECE /* TransmissionWidget */ = {
 			isa = PBXGroup;
 			children = (
+				1BD7A8F9A28245469E9D19F0 /* Shared */,
 				CDC41FD1FCF2491492AE9A6F /* TransmissionWidget.swift */,
 				FB2734E027454906AE4FC969 /* Info.plist */,
 				4D3CE16AEC884B3C8B76BC68 /* TransmissionWidget.entitlements */,
 			);
 			path = macosx/TransmissionWidget;
+			sourceTree = "<group>";
+		};
+		1BD7A8F9A28245469E9D19F0 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				9FB8283D4B0D447F818513F0 /* WidgetSnapshot.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3556,6 +3578,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				C86BCD9928228A9600F45599 /* SparkleProxy.mm in Sources */,
+				860F8B32C9A6483990A4AC34 /* WidgetSnapshot.swift in Sources */,
+				17D71162264A4A78B29444E8 /* WidgetSnapshotWriter.swift in Sources */,
+				7EF218695E4345EBAE2F6AEB /* WidgetSnapshotScheduler.mm in Sources */,
 				ED86936F2ADAE34D00342B1A /* DefaultAppHelper.mm in Sources */,
 				A225A4C0187E369C00CDE823 /* ShareToolbarItem.mm in Sources */,
 				A2D77453154CC72B00A62B93 /* WebSeedTableView.mm in Sources */,
@@ -3827,6 +3852,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5A448D9B32E34A8F86AA8658 /* TransmissionWidget.swift in Sources */,
+				50D7FA6A593C430384275CD7 /* WidgetSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4409,6 +4435,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = Transmission_Tahoe;
+				SWIFT_VERSION = 5.0;
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = macosx/Transmission.entitlements;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -4680,6 +4707,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = Transmission_Tahoe;
+				SWIFT_VERSION = 5.0;
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = macosx/Transmission.entitlements;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -4887,6 +4915,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = Transmission_Tahoe;
+				SWIFT_VERSION = 5.0;
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_ENTITLEMENTS = macosx/Transmission.entitlements;
 				ENABLE_HARDENED_RUNTIME = YES;

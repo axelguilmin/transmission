@@ -61,6 +61,7 @@
 #import "ExpandedPathToIconTransformer.h"
 #import "PowerManager.h"
 #import "Utils.h"
+#import "WidgetSnapshotScheduler.h"
 
 typedef NSString* ToolbarItemIdentifier NS_TYPED_EXTENSIBLE_ENUM;
 
@@ -412,6 +413,7 @@ static void removeKeRangerRansomware()
 @property(nonatomic) DragOverlayWindow* fOverlayWindow;
 
 @property(nonatomic) NSTimer* fTimer;
+@property(nonatomic, readonly) WidgetSnapshotScheduler* fWidgetScheduler;
 
 @property(nonatomic) StatusBarController* fStatusBar;
 
@@ -510,6 +512,11 @@ static void removeKeRangerRansomware()
         auto const default_config_dir = tr_getDefaultConfigDir("Transmission");
         _fLib = tr_sessionInit(default_config_dir, YES, settings);
         _fConfigDirectory = @(default_config_dir.c_str());
+
+        if (@available(macOS 26.0, *))
+        {
+            _fWidgetScheduler = [[WidgetSnapshotScheduler alloc] initWithConfigDirectory:_fConfigDirectory];
+        }
 
         tr_sessionSetIdleLimitHitCallback(
             _fLib,
@@ -1047,6 +1054,8 @@ static void removeKeRangerRansomware()
     [NSNotificationCenter.defaultCenter removeObserver:self];
 
     [self.fTimer invalidate];
+
+    [self.fWidgetScheduler writeNotRunning];
 
     if (self.fAutoImportTimer)
     {
@@ -2408,6 +2417,10 @@ static void removeKeRangerRansomware()
     }
 
     PowerManager.shared.shouldPreventSleep = anyActive && [self.fDefaults boolForKey:@"SleepPrevent"];
+
+    [self.fWidgetScheduler updateWithTorrents:[self.fTorrents sortedArrayUsingDescriptors:[self sortDescriptors]]
+                                 downloadRate:dlRate
+                                   uploadRate:ulRate];
 
     if (!NSApp.hidden)
     {

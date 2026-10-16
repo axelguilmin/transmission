@@ -12,11 +12,12 @@
 typedef NS_ENUM(NSUInteger, TorrentDeterminationType) { TorrentDeterminationAutomatic = 0, TorrentDeterminationUserSpecified };
 
 /// The status the filter bar groups torrents by; every torrent has exactly one.
+/// WidgetSnapshotWriter.swift decodes these raw values.
 typedef NS_ENUM(NSInteger, TorrentFilterStatus) { //
-    TorrentFilterStatusDownloading,
-    TorrentFilterStatusSeeding,
-    TorrentFilterStatusPaused,
-    TorrentFilterStatusError,
+    TorrentFilterStatusDownloading = 0,
+    TorrentFilterStatusSeeding = 1,
+    TorrentFilterStatusPaused = 2,
+    TorrentFilterStatusError = 3,
 };
 
 extern NSString* const kTorrentDidChangeGroupNotification;
