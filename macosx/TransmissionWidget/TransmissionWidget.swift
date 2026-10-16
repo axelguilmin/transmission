@@ -2,6 +2,7 @@
 // It may be used under the MIT (SPDX: MIT) license.
 // License text can be found in the licenses/ folder.
 
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -10,6 +11,62 @@ private let staleAge: TimeInterval = 2 * 60
 /// The app rewrites the snapshot every minute while it runs; data older than this means it crashed.
 private let notRunningAge: TimeInterval = 3 * 60
 
+/// The main window's filter bar choices the widget offers, with the same meanings.
+enum TorrentFilter: String, AppEnum {
+    case downloading
+    case active
+    case all
+
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(
+        name: LocalizedStringResource("Filter", comment: "Widget configuration -> which torrents to show"))
+    static let caseDisplayRepresentations: [TorrentFilter: DisplayRepresentation] = [
+        .downloading: DisplayRepresentation(title: LocalizedStringResource("Downloading", comment: "Widget -> filter name")),
+        .active: DisplayRepresentation(title: LocalizedStringResource("Active", comment: "Widget -> filter name")),
+        .all: DisplayRepresentation(title: LocalizedStringResource("All", comment: "Widget -> filter name")),
+    ]
+
+    func includes(_ torrent: WidgetSnapshot.Torrent) -> Bool {
+        switch self {
+        case .downloading:
+            return torrent.filterStatus == .downloading
+        case .active:
+            return (torrent.filterStatus == .downloading || torrent.filterStatus == .seeding) && torrent.isActive
+        case .all:
+            return true
+        }
+    }
+
+    var name: Text {
+        switch self {
+        case .downloading:
+            return Text("Downloading", comment: "Widget -> filter name")
+        case .active:
+            return Text("Active", comment: "Widget -> filter name")
+        case .all:
+            return Text("All", comment: "Widget -> filter name")
+        }
+    }
+
+    var emptyText: Text {
+        switch self {
+        case .downloading:
+            return Text("No downloading torrents", comment: "Widget -> no torrent matches the filter")
+        case .active:
+            return Text("No active torrents", comment: "Widget -> no torrent matches the filter")
+        case .all:
+            return Text("No torrents", comment: "Widget -> no torrent matches the filter")
+        }
+    }
+}
+
+struct TorrentsConfigurationIntent: WidgetConfigurationIntent {
+    static let title = LocalizedStringResource("Torrents", comment: "Widget configuration -> title")
+
+    @Parameter(title: LocalizedStringResource("Filter", comment: "Widget configuration -> which torrents to show"),
+               default: .downloading)
+    var filter: TorrentFilter
+}
+
 struct TorrentsEntry: TimelineEntry {
     enum Content {
         case missing
@@ -17,30 +74,37 @@ struct TorrentsEntry: TimelineEntry {
     }
 
     let date: Date
+    let filter: TorrentFilter
     let content: Content
 }
 
-struct TorrentsProvider: TimelineProvider {
+struct TorrentsProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> TorrentsEntry {
-        TorrentsEntry(date: .now, content: .snapshot(.placeholder, isStale: false, isRunning: true))
+        TorrentsEntry(date: .now, filter: .downloading, content: .snapshot(.placeholder, isStale: false, isRunning: true))
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (TorrentsEntry) -> Void) {
-        completion(context.isPreview ? placeholder(in: context) : entries(now: .now)[0])
+    func snapshot(for configuration: TorrentsConfigurationIntent, in context: Context) async -> TorrentsEntry {
+        if context.isPreview {
+            return TorrentsEntry(date: .now,
+                                 filter: configuration.filter,
+                                 content: .snapshot(.placeholder, isStale: false, isRunning: true))
+        }
+        return entries(filter: configuration.filter, now: .now)[0]
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TorrentsEntry>) -> Void) {
+    func timeline(for configuration: TorrentsConfigurationIntent, in context: Context) async -> Timeline<TorrentsEntry> {
         let now = Date.now
-        completion(Timeline(entries: entries(now: now), policy: .after(now.addingTimeInterval(15 * 60))))
+        return Timeline(entries: entries(filter: configuration.filter, now: now),
+                        policy: .after(now.addingTimeInterval(15 * 60)))
     }
 
     /// The entry for now, plus the ones that age it if the app stops writing.
-    private func entries(now: Date) -> [TorrentsEntry] {
+    private func entries(filter: TorrentFilter, now: Date) -> [TorrentsEntry] {
         guard let snapshot = loadSnapshot() else {
-            return [TorrentsEntry(date: now, content: .missing)]
+            return [TorrentsEntry(date: now, filter: filter, content: .missing)]
         }
         guard snapshot.running else {
-            return [TorrentsEntry(date: now, content: .snapshot(snapshot, isStale: true, isRunning: false))]
+            return [TorrentsEntry(date: now, filter: filter, content: .snapshot(snapshot, isStale: true, isRunning: false))]
         }
 
         let staleDate = snapshot.written.addingTimeInterval(staleAge)
@@ -48,6 +112,7 @@ struct TorrentsProvider: TimelineProvider {
         return ([now] + [staleDate, notRunningDate].filter { $0 > now })
             .map { date in
                 TorrentsEntry(date: date,
+                              filter: filter,
                               content: .snapshot(snapshot, isStale: date >= staleDate, isRunning: date < notRunningDate))
             }
     }
@@ -83,9 +148,9 @@ struct TorrentsWidgetView: View {
                 }
                 Group {
                     if family == .systemSmall {
-                        SmallView(snapshot: snapshot)
+                        SmallView(snapshot: snapshot, filter: entry.filter)
                     } else {
-                        ListView(snapshot: snapshot, maxRows: family == .systemLarge ? 6 : 3)
+                        ListView(snapshot: snapshot, filter: entry.filter, maxRows: family == .systemLarge ? 6 : 3)
                     }
                 }
                 .opacity(isRunning ? 1 : 0.4)
@@ -100,16 +165,17 @@ struct TorrentsWidgetView: View {
     }
 }
 
-/// Count, overall progress and speed of the downloading torrents.
+/// Count, overall progress and speed of the torrents the filter shows.
 private struct SmallView: View {
     let snapshot: WidgetSnapshot
+    let filter: TorrentFilter
 
     var body: some View {
-        let torrents = snapshot.downloading
+        let torrents = snapshot.torrents.filter(filter.includes)
         VStack(alignment: .leading, spacing: 4) {
             Text(verbatim: "\(torrents.count)")
                 .font(.system(size: 34, weight: .semibold, design: .rounded))
-            Text("Downloading", comment: "Widget -> filter name")
+            filter.name
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Spacer(minLength: 0)
@@ -133,17 +199,18 @@ private struct SmallView: View {
     }
 }
 
-/// Main-window-like rows of the downloading torrents.
+/// Main-window-like rows of the torrents the filter shows.
 private struct ListView: View {
     @Environment(\.widgetFamily) private var family
     let snapshot: WidgetSnapshot
+    let filter: TorrentFilter
     let maxRows: Int
 
     var body: some View {
-        let torrents = snapshot.downloading
+        let torrents = snapshot.torrents.filter(filter.includes)
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Downloading", comment: "Widget -> filter name")
+                filter.name
                     .font(.headline)
                 Spacer()
                 Text(verbatim: "↓ \(snapshot.downloadRate)  ↑ \(snapshot.uploadRate)")
@@ -152,7 +219,7 @@ private struct ListView: View {
             }
             if torrents.isEmpty {
                 Spacer(minLength: 0)
-                Text("No downloading torrents", comment: "Widget -> no torrent matches the filter")
+                filter.emptyText
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
@@ -219,10 +286,6 @@ private struct ProgressBar: View {
 }
 
 private extension WidgetSnapshot {
-    var downloading: [Torrent] {
-        torrents.filter { $0.filterStatus == .downloading }
-    }
-
     static let placeholder = WidgetSnapshot(
         version: currentVersion,
         written: .now,
@@ -253,7 +316,9 @@ private extension WidgetSnapshot {
 
 struct TorrentsWidget: Widget {
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: WidgetSnapshot.widgetKind, provider: TorrentsProvider()) { entry in
+        AppIntentConfiguration(kind: WidgetSnapshot.widgetKind,
+                               intent: TorrentsConfigurationIntent.self,
+                               provider: TorrentsProvider()) { entry in
             TorrentsWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }

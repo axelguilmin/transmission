@@ -1,6 +1,12 @@
 /* Widget -> torrents that don't fit */
 "+%lld more" = "+%lld more";
 
+/* Widget -> filter name */
+"Active" = "Active";
+
+/* Widget -> filter name */
+"All" = "All";
+
 /* Widget -> time the shown data was written */
 "As of %@" = "As of %@";
 
@@ -10,11 +16,23 @@
 /* Widget -> filter name */
 "Downloading" = "Downloading";
 
+/* Widget configuration -> which torrents to show */
+"Filter" = "Filter";
+
 /* Widget gallery -> widget description */
 "Keep an eye on the torrents you're downloading." = "Keep an eye on the torrents you're downloading.";
 
 /* Widget -> no torrent matches the filter */
+"No active torrents" = "No active torrents";
+
+/* Widget -> no torrent matches the filter */
 "No downloading torrents" = "No downloading torrents";
+
+/* Widget -> no torrent matches the filter */
+"No torrents" = "No torrents";
+
+/* Widget configuration -> title */
+"Torrents" = "Torrents";
 
 /* Widget -> app has quit or stopped responding */
 "Transmission isn't running" = "Transmission isn't running";
