@@ -117,7 +117,7 @@ private struct SmallView: View {
                 Text(verbatim: "↑ \(snapshot.uploadRate)")
                     .font(.caption)
             } else {
-                ProgressView(value: overallProgress(of: torrents))
+                ProgressBar(value: overallProgress(of: torrents))
                 Text(verbatim: "↓ \(snapshot.downloadRate)")
                     .font(.caption)
             }
@@ -135,6 +135,7 @@ private struct SmallView: View {
 
 /// Main-window-like rows of the downloading torrents.
 private struct ListView: View {
+    @Environment(\.widgetFamily) private var family
     let snapshot: WidgetSnapshot
     let maxRows: Int
 
@@ -158,7 +159,7 @@ private struct ListView: View {
                 Spacer(minLength: 0)
             } else {
                 ForEach(torrents.prefix(maxRows), id: \.id) { torrent in
-                    TorrentRow(torrent: torrent)
+                    TorrentRow(torrent: torrent, showsStatus: family == .systemLarge)
                 }
                 if torrents.count > maxRows {
                     Text("+\(torrents.count - maxRows) more", comment: "Widget -> torrents that don't fit")
@@ -171,8 +172,10 @@ private struct ListView: View {
     }
 }
 
+/// Like a main-window row: name, progress with time remaining, and optionally the status line.
 private struct TorrentRow: View {
     let torrent: WidgetSnapshot.Torrent
+    let showsStatus: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -180,12 +183,38 @@ private struct TorrentRow: View {
                 .font(.caption.weight(.medium))
                 .lineLimit(1)
                 .truncationMode(.middle)
-            ProgressView(value: torrent.progress)
-            Text(torrent.statusString)
+            Text(torrent.progressString)
                 .font(.caption2)
-                .foregroundStyle(torrent.hasErrorOrWarning ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
+                .foregroundStyle(.secondary)
                 .lineLimit(1)
+            ProgressBar(value: torrent.progress)
+            if showsStatus || torrent.hasErrorOrWarning {
+                Text(torrent.statusString)
+                    .font(.caption2)
+                    .foregroundStyle(torrent.hasErrorOrWarning ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
+                    .lineLimit(1)
+            }
         }
+    }
+}
+
+/// ProgressView draws its track and fill in the same color in the desktop's vibrant rendering,
+/// so this draws a dimmer track explicitly.
+private struct ProgressBar: View {
+    let value: Double
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(.primary.opacity(0.2))
+                Capsule()
+                    .fill(.tint)
+                    .frame(width: geometry.size.width * min(max(value, 0), 1))
+                    .widgetAccentable()
+            }
+        }
+        .frame(height: 4)
     }
 }
 
