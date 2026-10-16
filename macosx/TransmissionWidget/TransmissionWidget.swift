@@ -5,7 +5,7 @@
 import SwiftUI
 import WidgetKit
 
-/// Data older than this gets an "as of" time.
+/// Data older than this, or written by an app that has quit, gets an "as of" time.
 private let staleAge: TimeInterval = 2 * 60
 /// The app rewrites the snapshot every minute while it runs; data older than this means it crashed.
 private let notRunningAge: TimeInterval = 3 * 60
@@ -89,7 +89,7 @@ struct TorrentsWidgetView: View {
                     }
                 }
                 .opacity(isRunning ? 1 : 0.4)
-                if isStale && isRunning {
+                if isStale {
                     Text("As of \(snapshot.written, style: .time)", comment: "Widget -> time the shown data was written")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
