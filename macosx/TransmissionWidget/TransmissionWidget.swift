@@ -70,14 +70,14 @@ struct TorrentsWidgetView: View {
     var body: some View {
         switch entry.content {
         case .missing:
-            Text("Can't find Transmission data")
+            Text("Can't find Transmission data", comment: "Widget -> no snapshot to read")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         case let .snapshot(snapshot, isStale, isRunning):
             VStack(alignment: .leading, spacing: 6) {
                 if !isRunning {
-                    Text("Transmission isn't running")
+                    Text("Transmission isn't running", comment: "Widget -> app has quit or stopped responding")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
@@ -90,7 +90,7 @@ struct TorrentsWidgetView: View {
                 }
                 .opacity(isRunning ? 1 : 0.4)
                 if isStale && isRunning {
-                    Text("As of \(snapshot.written, style: .time)")
+                    Text("As of \(snapshot.written, style: .time)", comment: "Widget -> time the shown data was written")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -107,18 +107,18 @@ private struct SmallView: View {
     var body: some View {
         let torrents = snapshot.downloading
         VStack(alignment: .leading, spacing: 4) {
-            Text("\(torrents.count)")
+            Text(verbatim: "\(torrents.count)")
                 .font(.system(size: 34, weight: .semibold, design: .rounded))
-            Text("Downloading")
+            Text("Downloading", comment: "Widget -> filter name")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Spacer(minLength: 0)
             if torrents.isEmpty {
-                Text("↑ \(snapshot.uploadRate)")
+                Text(verbatim: "↑ \(snapshot.uploadRate)")
                     .font(.caption)
             } else {
                 ProgressView(value: overallProgress(of: torrents))
-                Text("↓ \(snapshot.downloadRate)")
+                Text(verbatim: "↓ \(snapshot.downloadRate)")
                     .font(.caption)
             }
         }
@@ -142,16 +142,16 @@ private struct ListView: View {
         let torrents = snapshot.downloading
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Downloading")
+                Text("Downloading", comment: "Widget -> filter name")
                     .font(.headline)
                 Spacer()
-                Text("↓ \(snapshot.downloadRate)  ↑ \(snapshot.uploadRate)")
+                Text(verbatim: "↓ \(snapshot.downloadRate)  ↑ \(snapshot.uploadRate)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             if torrents.isEmpty {
                 Spacer(minLength: 0)
-                Text("No downloading torrents")
+                Text("No downloading torrents", comment: "Widget -> no torrent matches the filter")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
@@ -161,7 +161,7 @@ private struct ListView: View {
                     TorrentRow(torrent: torrent)
                 }
                 if torrents.count > maxRows {
-                    Text("+\(torrents.count - maxRows) more")
+                    Text("+\(torrents.count - maxRows) more", comment: "Widget -> torrents that don't fit")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -228,8 +228,8 @@ struct TorrentsWidget: Widget {
             TorrentsWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Transmission")
-        .description("Keep an eye on the torrents you're downloading.")
+        .configurationDisplayName(Text(verbatim: "Transmission"))
+        .description(Text("Keep an eye on the torrents you're downloading.", comment: "Widget gallery -> widget description"))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

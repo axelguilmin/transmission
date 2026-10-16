@@ -1,0 +1,20 @@
+/* Widget -> torrents that don't fit */
+"+%lld more" = "+%lld more";
+
+/* Widget -> time the shown data was written */
+"As of %@" = "As of %@";
+
+/* Widget -> no snapshot to read */
+"Can't find Transmission data" = "Can't find Transmission data";
+
+/* Widget -> filter name */
+"Downloading" = "Downloading";
+
+/* Widget gallery -> widget description */
+"Keep an eye on the torrents you're downloading." = "Keep an eye on the torrents you're downloading.";
+
+/* Widget -> no torrent matches the filter */
+"No downloading torrents" = "No downloading torrents";
+
+/* Widget -> app has quit or stopped responding */
+"Transmission isn't running" = "Transmission isn't running";
