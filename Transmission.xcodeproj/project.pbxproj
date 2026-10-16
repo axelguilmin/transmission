@@ -487,6 +487,8 @@
 		EDD735D62D83087400852628 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDD735D52D83087400852628 /* UniformTypeIdentifiers.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		F11545ACA7C4D7A464F703AB /* block-info.h in Headers */ = {isa = PBXBuildFile; fileRef = 6A044CBD8C049AFCBD4DB411 /* block-info.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		F63480631E1D7274005B9E09 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F63480621E1D7274005B9E09 /* Images.xcassets */; };
+		5A448D9B32E34A8F86AA8658 /* TransmissionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC41FD1FCF2491492AE9A6F /* TransmissionWidget.swift */; };
+		0D4C372E9E9E494EAB418953 /* TransmissionWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 557FB7523EE64E03A25D4E25 /* TransmissionWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -637,6 +639,13 @@
 			remoteGlobalIDString = ED91F00B2CBDA5D3008388AA;
 			remoteInfo = "madler-crcany";
 		};
+		7B54004C6B084E959E7FB12B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF7BEC64F5E0472BBF8EFB27;
+			remoteInfo = TransmissionWidget;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -669,6 +678,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				ED5E0E8D2CD30B180071433B /* QuickLookExtension.appex in Embed Foundation Extensions */,
+				0D4C372E9E9E494EAB418953 /* TransmissionWidget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1485,6 +1495,10 @@
 		EDC749F82D98AE2900A12D0F /* PowerManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PowerManager.mm; sourceTree = "<group>"; };
 		EDD735D52D83087400852628 /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		F63480621E1D7274005B9E09 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Images/Images.xcassets; sourceTree = "<group>"; };
+		CDC41FD1FCF2491492AE9A6F /* TransmissionWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransmissionWidget.swift; sourceTree = "<group>"; };
+		FB2734E027454906AE4FC969 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4D3CE16AEC884B3C8B76BC68 /* TransmissionWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TransmissionWidget.entitlements; sourceTree = "<group>"; };
+		557FB7523EE64E03A25D4E25 /* TransmissionWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TransmissionWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1689,6 +1703,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6FD72C62CF53485992D101D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1825,6 +1846,7 @@
 				C1846B9E294F7A3400A98F30 /* libwildmat.a */,
 				ED91F00C2CBDA5D3008388AA /* libmadler-crcany.a */,
 				ED5E0E7C2CD30B180071433B /* QuickLookExtension.appex */,
+				557FB7523EE64E03A25D4E25 /* TransmissionWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1835,6 +1857,7 @@
 				A22CEF9E21CDC44400C5C1BA /* Transmission.entitlements */,
 				4DDBB70A09E16B3200284745 /* GUI */,
 				ED5E0E992CD30E8F0071433B /* QuickLookExtension */,
+				BA18349480D04877A65BDECE /* TransmissionWidget */,
 				A2F35BC315C5A0A100EBF632 /* QuickLookPlugin */,
 				4D1838DC09DEC04A0047D688 /* libtransmission */,
 				4DDBB71F09E16BFE00284745 /* CLI */,
@@ -2537,6 +2560,16 @@
 			path = "third-party/madler-crcany";
 			sourceTree = "<group>";
 		};
+		BA18349480D04877A65BDECE /* TransmissionWidget */ = {
+			isa = PBXGroup;
+			children = (
+				CDC41FD1FCF2491492AE9A6F /* TransmissionWidget.swift */,
+				FB2734E027454906AE4FC969 /* Info.plist */,
+				4D3CE16AEC884B3C8B76BC68 /* TransmissionWidget.entitlements */,
+			);
+			path = macosx/TransmissionWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -2841,6 +2874,7 @@
 				A2EB2E7515C8CCE900FBD5B4 /* PBXTargetDependency */,
 				4D1838E609DEC1170047D688 /* PBXTargetDependency */,
 				ED5E0E8C2CD30B180071433B /* PBXTargetDependency */,
+				52D153A67482492787390CC3 /* PBXTargetDependency */,
 			);
 			name = Transmission;
 			productInstallPath = "$(HOME)/Applications";
@@ -3129,6 +3163,23 @@
 			productReference = ED91F00C2CBDA5D3008388AA /* libmadler-crcany.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		AF7BEC64F5E0472BBF8EFB27 /* TransmissionWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0975AB7F232C4D21B90778B6 /* Build configuration list for PBXNativeTarget "TransmissionWidget" */;
+			buildPhases = (
+				A326B67761AC4297AA019A9E /* Sources */,
+				6FD72C62CF53485992D101D6 /* Frameworks */,
+				814BD2C93E504568972DC1C0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TransmissionWidget;
+			productName = TransmissionWidget;
+			productReference = 557FB7523EE64E03A25D4E25 /* TransmissionWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -3193,6 +3244,7 @@
 			targets = (
 				8D1107260486CEB800E47090 /* Transmission */,
 				ED5E0E7B2CD30B180071433B /* QuickLookExtension */,
+				AF7BEC64F5E0472BBF8EFB27 /* TransmissionWidget */,
 				A2F35BB815C5A0A100EBF632 /* QuickLookPlugin */,
 				4D18389609DEC0030047D688 /* libtransmission */,
 				4DDBB71809E16BAE00284745 /* transmissioncli */,
@@ -3271,6 +3323,13 @@
 			files = (
 				ED5E0EFA2CD315720071433B /* Localizable.strings in Resources */,
 				ED5E0EA22CD314FE0071433B /* style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		814BD2C93E504568972DC1C0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3763,6 +3822,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A326B67761AC4297AA019A9E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A448D9B32E34A8F86AA8658 /* TransmissionWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3870,6 +3937,11 @@
 			isa = PBXTargetDependency;
 			target = ED91F00B2CBDA5D3008388AA /* madler-crcany */;
 			targetProxy = ED91F3942CBDA9BD008388AA /* PBXContainerItemProxy */;
+		};
+		52D153A67482492787390CC3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF7BEC64F5E0472BBF8EFB27 /* TransmissionWidget */;
+			targetProxy = 7B54004C6B084E959E7FB12B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -5600,6 +5672,62 @@
 			};
 			name = Release;
 		};
+		21047C575F3E45C38142F0FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = macosx/TransmissionWidget/TransmissionWidget.entitlements;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				INFOPLIST_FILE = macosx/TransmissionWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.m0k.transmission.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7F149E41D8A04E66BC044DF0 /* Release - Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = macosx/TransmissionWidget/TransmissionWidget.entitlements;
+				INFOPLIST_FILE = macosx/TransmissionWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.m0k.transmission.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = "Release - Debug";
+		};
+		D0E64BE6A3B14A94819AF77B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = macosx/TransmissionWidget/TransmissionWidget.entitlements;
+				INFOPLIST_FILE = macosx/TransmissionWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.m0k.transmission.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5809,6 +5937,16 @@
 				ED91F0142CBDA5D3008388AA /* Debug */,
 				ED91F0152CBDA5D3008388AA /* Release - Debug */,
 				ED91F0162CBDA5D3008388AA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		0975AB7F232C4D21B90778B6 /* Build configuration list for PBXNativeTarget "TransmissionWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21047C575F3E45C38142F0FF /* Debug */,
+				7F149E41D8A04E66BC044DF0 /* Release - Debug */,
+				D0E64BE6A3B14A94819AF77B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
