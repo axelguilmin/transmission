@@ -11,6 +11,14 @@
 
 typedef NS_ENUM(NSUInteger, TorrentDeterminationType) { TorrentDeterminationAutomatic = 0, TorrentDeterminationUserSpecified };
 
+/// The status the filter bar groups torrents by; every torrent has exactly one.
+typedef NS_ENUM(NSInteger, TorrentFilterStatus) { //
+    TorrentFilterStatusDownloading,
+    TorrentFilterStatusSeeding,
+    TorrentFilterStatusPaused,
+    TorrentFilterStatusError,
+};
+
 extern NSString* const kTorrentDidChangeGroupNotification;
 
 @interface Torrent : NSObject<NSCopying, QLPreviewItem>
@@ -144,6 +152,7 @@ extern NSString* const kTorrentDidChangeGroupNotification;
 @property(nonatomic, getter=isError, readonly) BOOL error;
 @property(nonatomic, getter=isAnyErrorOrWarning, readonly) BOOL anyErrorOrWarning;
 @property(nonatomic, readonly) NSString* errorMessage;
+@property(nonatomic, readonly) TorrentFilterStatus filterStatus;
 
 @property(nonatomic, readonly) NSArray<NSDictionary*>* peers;
 

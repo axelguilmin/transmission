@@ -1013,6 +1013,15 @@ static tr_torrent_rename_done_func makeRenameDoneCallback(NSDictionary* contextI
     return self.fStat.error != tr_stat::Error::Ok;
 }
 
+- (TorrentFilterStatus)filterStatus
+{
+    if (self.active && !self.checkingWaiting)
+    {
+        return self.seeding ? TorrentFilterStatusSeeding : TorrentFilterStatusDownloading;
+    }
+    return self.error ? TorrentFilterStatusError : TorrentFilterStatusPaused;
+}
+
 - (NSString*)errorMessage
 {
     if (!self.anyErrorOrWarning)

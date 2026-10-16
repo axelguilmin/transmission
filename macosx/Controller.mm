@@ -2803,7 +2803,7 @@ static void removeKeRangerRansomware()
     self.fTableView.needsDisplay = YES;
 }
 
-- (void)sortTorrentsCallUpdates:(BOOL)callUpdates includeQueueOrder:(BOOL)includeQueueOrder
+- (NSArray<NSSortDescriptor*>*)sortDescriptors
 {
     BOOL const asc = ![self.fDefaults boolForKey:@"SortReverse"];
 
@@ -2872,15 +2872,22 @@ static void removeKeRangerRansomware()
     {
         NSAssert1([sortType isEqualToString:SortTypeOrder], @"Unknown sort type received: %@", sortType);
 
-        if (!includeQueueOrder)
-        {
-            return;
-        }
-
         NSSortDescriptor* orderDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"queuePosition" ascending:asc];
 
         descriptors = @[ orderDescriptor ];
     }
+
+    return descriptors;
+}
+
+- (void)sortTorrentsCallUpdates:(BOOL)callUpdates includeQueueOrder:(BOOL)includeQueueOrder
+{
+    if (!includeQueueOrder && [[self.fDefaults stringForKey:@"Sort"] isEqualToString:SortTypeOrder])
+    {
+        return;
+    }
+
+    NSArray<NSSortDescriptor*>* descriptors = self.sortDescriptors;
 
     BOOL beganTableUpdate = !callUpdates;
 
@@ -3001,7 +3008,8 @@ static void removeKeRangerRansomware()
     NSIndexSet* indexesOfNonFilteredTorrents = [self.fTorrents
         indexesOfObjectsWithOptions:NSEnumerationConcurrent passingTest:^BOOL(Torrent* torrent, NSUInteger /*torrentIdx*/, BOOL* /*stopTorrentsEnumeration*/) {
             //check status
-            if (torrent.active && !torrent.checkingWaiting)
+            TorrentFilterStatus const status = torrent.filterStatus;
+            if (status == TorrentFilterStatusDownloading || status == TorrentFilterStatusSeeding)
             {
                 BOOL const isActive = torrent.transmitting;
                 if (isActive)
@@ -3009,7 +3017,7 @@ static void removeKeRangerRansomware()
                     std::atomic_fetch_add_explicit(activeRef, 1, std::memory_order_relaxed);
                 }
 
-                if (torrent.seeding)
+                if (status == TorrentFilterStatusSeeding)
                 {
                     std::atomic_fetch_add_explicit(seedingRef, 1, std::memory_order_relaxed);
                     if (filterStatus && !((filterActive && isActive) || filterSeed))
@@ -3026,7 +3034,7 @@ static void removeKeRangerRansomware()
                     }
                 }
             }
-            else if (torrent.error)
+            else if (status == TorrentFilterStatusError)
             {
                 std::atomic_fetch_add_explicit(errorRef, 1, std::memory_order_relaxed);
                 if (filterStatus && !filterError)
