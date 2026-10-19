@@ -6,6 +6,23 @@ endif()
 find_program(ACTOOL_EXECUTABLE actool REQUIRED)
 find_program(CODESIGN_EXECUTABLE codesign REQUIRED)
 
+# Only the Xcode generator derives swiftc's target from CMAKE_OSX_DEPLOYMENT_TARGET.
+if(NOT CMAKE_GENERATOR STREQUAL Xcode)
+    if(CMAKE_OSX_ARCHITECTURES MATCHES ";")
+        message(FATAL_ERROR "Only the Xcode generator can build Swift for several architectures at once")
+    elseif(CMAKE_OSX_ARCHITECTURES)
+        set(TR_SWIFT_ARCH ${CMAKE_OSX_ARCHITECTURES})
+    else()
+        set(TR_SWIFT_ARCH ${CMAKE_HOST_SYSTEM_PROCESSOR})
+    endif()
+    set(CMAKE_Swift_COMPILER_TARGET ${TR_SWIFT_ARCH}-apple-macosx${CMAKE_OSX_DEPLOYMENT_TARGET})
+endif()
+# Separate Swift compile and link steps, so Ninja copies bundle resources before linking.
+if(POLICY CMP0157)
+    cmake_policy(SET CMP0157 NEW)
+endif()
+enable_language(Swift)
+
 set(MAC_BUNDLE_NAME Transmission)
 
 add_compile_options(
@@ -32,6 +49,7 @@ add_link_options(
 
 add_subdirectory(QuickLookExtension)
 add_subdirectory(QuickLookPlugin)
+add_subdirectory(TransmissionWidget)
 add_subdirectory(VDKQueue)
 
 add_executable(${TR_NAME}-mac MACOSX_BUNDLE)
@@ -197,7 +215,31 @@ target_sources(${TR_NAME}-mac
         Utils.h
         Utils.mm
         WebSeedTableView.h
-        WebSeedTableView.mm)
+        WebSeedTableView.mm
+        WidgetSnapshotScheduler.h
+        WidgetSnapshotScheduler.mm
+        WidgetSnapshotWriter.h)
+
+# Kept apart from the app so that swiftc sees none of libtransmission's compile definitions.
+add_library(${TR_NAME}-mac-swift STATIC
+    WidgetSnapshotWriter.swift
+    TransmissionWidget/Shared/WidgetSnapshot.swift)
+
+# swiftc defaults to Swift 5 mode. Swift_LANGUAGE_VERSION would add -swift-version
+# to OTHER_SWIFT_FLAGS, which Xcode warns overrides SWIFT_VERSION.
+set_target_properties(
+    ${TR_NAME}-mac-swift
+    PROPERTIES
+        Swift_MODULE_NAME ${MAC_BUNDLE_NAME}
+        XCODE_ATTRIBUTE_SWIFT_VERSION 5.0)
+
+# The app links with clang++, which lacks the Swift runtime search paths that swiftc passes the linker.
+execute_process(
+    COMMAND ${CMAKE_Swift_COMPILER} -print-target-info
+    OUTPUT_VARIABLE SWIFT_TARGET_INFO)
+string(REGEX MATCH "\"runtimeLibraryPaths\": \\[([^]]*)\\]" SWIFT_RUNTIME_LIBRARY_PATHS "${SWIFT_TARGET_INFO}")
+string(REGEX MATCHALL "\"[^\"]+\"" SWIFT_RUNTIME_LIBRARY_PATHS "${CMAKE_MATCH_1}")
+list(TRANSFORM SWIFT_RUNTIME_LIBRARY_PATHS REPLACE "\"(.+)\"" "-L\\1")
 
 set(XIB_FILES
     AboutWindow.xib
@@ -402,10 +444,16 @@ find_library(SPARKLE_FRAMEWORK Sparkle
     PATHS ${CMAKE_CURRENT_SOURCE_DIR}
     NO_DEFAULT_PATHS)
 
+# target_link_directories() would give the Xcode generator per-configuration subdirectories that don't exist.
+target_link_options(${TR_NAME}-mac
+    PRIVATE
+        ${SWIFT_RUNTIME_LIBRARY_PATHS})
+
 target_link_libraries(${TR_NAME}-mac
     PRIVATE
         ${TR_NAME}
         transmission::fmt-header-only
+        ${TR_NAME}-mac-swift
         vdkqueue
         ${SPARKLE_FRAMEWORK}
         "-framework AppKit"
@@ -430,6 +478,7 @@ set_target_properties(
         INSTALL_RPATH "@executable_path;@executable_path/../Frameworks"
         MACOSX_BUNDLE_GUI_IDENTIFIER "org.m0k.transmission"
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
+        LINKER_LANGUAGE CXX
         OUTPUT_NAME ${MAC_BUNDLE_NAME})
 
 install(
