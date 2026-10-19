@@ -25,12 +25,12 @@
 
 @interface WidgetSnapshotWriter : NSObject
 
-/// Atomically writes the widget snapshot into directory and, if reload is set, asks WidgetKit to reload the widget.
+/// Atomically writes the widget snapshot into directory and asks WidgetKit to reload the widget.
 + (void)writeTorrents:(NSArray<WidgetSnapshotTorrent*>*)torrents
          downloadRate:(NSString*)downloadRate
            uploadRate:(NSString*)uploadRate
               running:(BOOL)running
-          toDirectory:(NSString*)directory
-               reload:(BOOL)reload;
+           nextUpdate:(NSDate*)nextUpdate
+          toDirectory:(NSString*)directory;
 
 @end

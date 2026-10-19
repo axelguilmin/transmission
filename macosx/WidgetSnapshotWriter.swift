@@ -48,15 +48,16 @@ final class WidgetSnapshotTorrent: NSObject {
 final class WidgetSnapshotWriter: NSObject {
     private static let log = Logger(subsystem: "org.m0k.transmission", category: "widget")
 
-    @objc(writeTorrents:downloadRate:uploadRate:running:toDirectory:reload:)
+    @objc(writeTorrents:downloadRate:uploadRate:running:nextUpdate:toDirectory:)
     static func write(torrents: [WidgetSnapshotTorrent],
                       downloadRate: String,
                       uploadRate: String,
                       running: Bool,
-                      toDirectory directory: String,
-                      reload: Bool) {
+                      nextUpdate: Date,
+                      toDirectory directory: String) {
         let snapshot = WidgetSnapshot(version: WidgetSnapshot.currentVersion,
                                       written: Date(),
+                                      nextUpdate: nextUpdate,
                                       running: running,
                                       downloadRate: downloadRate,
                                       uploadRate: uploadRate,
@@ -69,9 +70,7 @@ final class WidgetSnapshotWriter: NSObject {
             return
         }
 
-        if reload {
-            WidgetCenter.shared.reloadTimelines(ofKind: WidgetSnapshot.widgetKind)
-            log.debug("Requested a widget reload")
-        }
+        WidgetCenter.shared.reloadTimelines(ofKind: WidgetSnapshot.widgetKind)
+        log.debug("Requested a widget reload")
     }
 }

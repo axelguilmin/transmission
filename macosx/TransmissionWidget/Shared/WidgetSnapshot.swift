@@ -8,7 +8,7 @@ import Foundation
 /// Compiled into both the app and the widget extension.
 struct WidgetSnapshot: Codable {
     /// Bumped on any incompatible change; the widget ignores snapshots of another version.
-    static let currentVersion = 1
+    static let currentVersion = 2
     static let fileName = "widget-snapshot.json"
     static let widgetKind = "org.m0k.transmission.torrents"
 
@@ -35,6 +35,8 @@ struct WidgetSnapshot: Codable {
 
     var version: Int
     var written: Date
+    /// While running, the app writes and reloads the widget again by this time.
+    var nextUpdate: Date
     /// False once the app has quit.
     var running: Bool
     var downloadRate: String

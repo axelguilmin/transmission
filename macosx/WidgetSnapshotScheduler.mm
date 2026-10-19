@@ -11,15 +11,16 @@
 static NSTimeInterval const kMeaningChangeReloadInterval = 5.0;
 /// Progress and speeds are refreshed this often while anything is downloading or transferring.
 static NSTimeInterval const kTransferReloadInterval = 60.0;
-/// The snapshot is rewritten at least this often, so the widget can tell a crashed app from an idle one.
-static NSTimeInterval const kHeartbeatInterval = 60.0;
+/// Otherwise the widget is still reloaded this often, so it can tell a crashed app from an idle one.
+static NSTimeInterval const kIdleReloadInterval = 10 * 60.0;
 
 @interface WidgetSnapshotScheduler ()
 
 @property(nonatomic, readonly) NSString* fConfigDirectory;
 @property(nonatomic) NSString* fWrittenSignature;
 @property(nonatomic) NSDate* fLastReload;
-@property(nonatomic) NSDate* fLastWrite;
+/// When the written snapshot promises the next one.
+@property(nonatomic) NSDate* fNextUpdate;
 @property(nonatomic, copy) NSArray<Torrent*>* fTorrents;
 @property(nonatomic) CGFloat fDownloadRate;
 @property(nonatomic) CGFloat fUploadRate;
@@ -34,7 +35,7 @@ static NSTimeInterval const kHeartbeatInterval = 60.0;
     {
         _fConfigDirectory = [configDirectory copy];
         _fLastReload = NSDate.distantPast;
-        _fLastWrite = NSDate.distantPast;
+        _fNextUpdate = NSDate.distantPast;
     }
     return self;
 }
@@ -45,18 +46,6 @@ static NSTimeInterval const kHeartbeatInterval = 60.0;
     self.fDownloadRate = downloadRate;
     self.fUploadRate = uploadRate;
 
-    NSString* signature = [self signatureOfTorrents:torrents];
-    NSTimeInterval const sinceReload = -self.fLastReload.timeIntervalSinceNow;
-
-    if (![signature isEqualToString:self.fWrittenSignature])
-    {
-        if (sinceReload >= kMeaningChangeReloadInterval)
-        {
-            [self writeRunning:YES reload:YES signature:signature];
-        }
-        return;
-    }
-
     BOOL anyTransfer = NO;
     for (Torrent* torrent in torrents)
     {
@@ -66,20 +55,30 @@ static NSTimeInterval const kHeartbeatInterval = 60.0;
             break;
         }
     }
+    NSTimeInterval const reloadInterval = anyTransfer ? kTransferReloadInterval : kIdleReloadInterval;
 
-    if (anyTransfer && sinceReload >= kTransferReloadInterval)
+    NSString* signature = [self signatureOfTorrents:torrents];
+    NSTimeInterval const sinceReload = -self.fLastReload.timeIntervalSinceNow;
+
+    BOOL due;
+    if (![signature isEqualToString:self.fWrittenSignature])
     {
-        [self writeRunning:YES reload:YES signature:signature];
+        due = sinceReload >= kMeaningChangeReloadInterval;
     }
-    else if (-self.fLastWrite.timeIntervalSinceNow >= kHeartbeatInterval)
+    else
     {
-        [self writeRunning:YES reload:NO signature:signature];
+        due = sinceReload >= reloadInterval || self.fNextUpdate.timeIntervalSinceNow <= 0;
+    }
+
+    if (due)
+    {
+        [self writeRunning:YES signature:signature nextUpdate:[NSDate dateWithTimeIntervalSinceNow:reloadInterval]];
     }
 }
 
 - (void)writeNotRunning
 {
-    [self writeRunning:NO reload:YES signature:nil];
+    [self writeRunning:NO signature:nil nextUpdate:NSDate.distantFuture];
 }
 
 #pragma mark - Private
@@ -97,7 +96,7 @@ static NSTimeInterval const kHeartbeatInterval = 60.0;
     return signature;
 }
 
-- (void)writeRunning:(BOOL)running reload:(BOOL)reload signature:(NSString*)signature
+- (void)writeRunning:(BOOL)running signature:(NSString*)signature nextUpdate:(NSDate*)nextUpdate
 {
     NSMutableArray<WidgetSnapshotTorrent*>* torrents = [NSMutableArray arrayWithCapacity:self.fTorrents.count];
     for (Torrent* torrent in self.fTorrents)
@@ -115,15 +114,12 @@ static NSTimeInterval const kHeartbeatInterval = 60.0;
     [WidgetSnapshotWriter writeTorrents:torrents downloadRate:[NSString stringForSpeed:self.fDownloadRate]
                              uploadRate:[NSString stringForSpeed:self.fUploadRate]
                                 running:running
-                            toDirectory:self.fConfigDirectory
-                                 reload:reload];
+                             nextUpdate:nextUpdate
+                            toDirectory:self.fConfigDirectory];
 
     self.fWrittenSignature = signature;
-    self.fLastWrite = [NSDate date];
-    if (reload)
-    {
-        self.fLastReload = self.fLastWrite;
-    }
+    self.fLastReload = [NSDate date];
+    self.fNextUpdate = nextUpdate;
 }
 
 @end

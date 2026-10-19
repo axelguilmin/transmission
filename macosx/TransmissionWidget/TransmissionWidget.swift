@@ -6,10 +6,10 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
-/// Data older than this, or written by an app that has quit, gets an "as of" time.
-private let staleAge: TimeInterval = 2 * 60
-/// The app rewrites the snapshot every minute while it runs; data older than this means it crashed.
-private let notRunningAge: TimeInterval = 3 * 60
+/// Data this late past the snapshot's nextUpdate, or written by an app that has quit, gets an "as of" time.
+private let staleDelay: TimeInterval = 60
+/// No update this late past the snapshot's nextUpdate means the app crashed.
+private let notRunningDelay: TimeInterval = 2 * 60
 
 /// The main window's filter bar choices the widget offers, with the same meanings.
 enum TorrentFilter: String, AppEnum {
@@ -107,8 +107,8 @@ struct TorrentsProvider: AppIntentTimelineProvider {
             return [TorrentsEntry(date: now, filter: filter, content: .snapshot(snapshot, isStale: true, isRunning: false))]
         }
 
-        let staleDate = snapshot.written.addingTimeInterval(staleAge)
-        let notRunningDate = snapshot.written.addingTimeInterval(notRunningAge)
+        let staleDate = snapshot.nextUpdate.addingTimeInterval(staleDelay)
+        let notRunningDate = snapshot.nextUpdate.addingTimeInterval(notRunningDelay)
         return ([now] + [staleDate, notRunningDate].filter { $0 > now })
             .map { date in
                 TorrentsEntry(date: date,
@@ -289,6 +289,7 @@ private extension WidgetSnapshot {
     static let placeholder = WidgetSnapshot(
         version: currentVersion,
         written: .now,
+        nextUpdate: .now,
         running: true,
         downloadRate: "2.4 MB/s",
         uploadRate: "310 KB/s",
